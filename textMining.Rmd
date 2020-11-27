@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# 4.Expérémentations
+
+## Importer les librairies
+
+```{r}
+# Installer les packages
+install.packages("tm") # for text mining
+install.packages("SnowballC") # for text stemming
+install.packages("wordcloud") # word-cloud generator
+install.packages("RColorBrewer") # color palettes
+install.packages("syuzhet") # for sentiment analysis
+install.packages("ggplot2") # for plotting graphs
+# Charger les libraries
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
+library("syuzhet")
+library("ggplot2")
+```
+
+## lecture de texte
+
+```{r}
+text <- readLines(file.choose())
+```
+
+## Charger les données sous forme de  corpus
+
+```{r}
+TextDoc <- Corpus(VectorSource(text))
+```
+## 4.4. Netoyage
+```{r}
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+TextDoc <- tm_map(TextDoc, toSpace, "/")
+TextDoc <- tm_map(TextDoc, toSpace, "@")
+TextDoc <- tm_map(TextDoc, toSpace, "\\|")
+TextDoc <- tm_map(TextDoc, toSpace, "")
+```
+
+##4.5.
+```{r}
+TextDoc <- tm_map(TextDoc, content_transformer(tolower))
+TextDoc <- tm_map(TextDoc, removeNumbers)
+TextDoc <- tm_map(TextDoc, removeWords, stopwords("english"))
+TextDoc <- tm_map(TextDoc, removeWords, c("s", "company","team"))
+TextDoc <- tm_map(TextDoc, removePunctuation)
+TextDoc <- tm_map(TextDoc, stripWhitespace)
+TextDoc <- tm_map(TextDoc, stemDocument)
+
+class(TextDoc)
+inspect(TextDoc[[7]])
+```
+
+## 4.6.Matrice “Termes par Document”
+
+```{r}
+TextDoc_dtm <- TermDocumentMatrix(TextDoc)
+inspect(TextDoc_dtm)
+dtm_m <- as.matrix(TextDoc_dtm)
+#head(dtm_m)
+```
+
+## 4.7.Matrice “Termes par Document” (suite) 
+
+```{r}
+# Trier par valeur décroissante de fréquence
+dtm_v <- sort(rowSums(dtm_m),decreasing=TRUE)
+dtm_d <- data.frame(word = names(dtm_v),freq=dtm_v)
+# Afficher les cinq mots les plus fréquents
+head(dtm_d, 20)
+```
+## 4.8.Matrice “Termes par Document” (suite) 
+
+```{r}
+# Tracer les mots les plus fréquents
+barplot(dtm_d[1:5,]$freq, las = 2, names.arg = dtm_d[1:5,]$word,
+col ="lightblue", main ="Top 5 des mots les plus fréquents",
+ylab = "Fréquence des mots")
+```
+## 4.9. Capturer les modéles
+
+
