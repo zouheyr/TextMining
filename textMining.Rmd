@@ -86,4 +86,96 @@ ylab = "Fréquence des mots")
 ```
 ## 4.9. Capturer les modéles
 
+```{r}
+# Générer un nuage de mots (word cloud)
+set.seed(1234)
+wordcloud(words = dtm_d$word, freq = dtm_d$freq, min.freq = 5,
+max.words=100, random.order=FALSE, rot.per=0.40,
+colors=brewer.pal(8, "Dark2"))
+```
+## 4.10. 
+```{r}
+# Trouver des associations
+findAssocs(TextDoc_dtm, terms = c("presid","donald","peopl"), corlimit = 0.25)
+# Trouver des associations pour des mots qui se produisent au moins 50 fois
+findAssocs(TextDoc_dtm, terms = findFreqTerms(TextDoc_dtm, lowfreq = 50),
+corlimit = 0.25)
+```
+
+## 4.11. Score des sentiments
+```{r}
+syuzhet_vector <- get_sentiment(text,method="syuzhet")
+head(syuzhet_vector)
+summary(syuzhet_vector)
+```
+## 4.12. 
+
+```{r}
+#par la methode bing
+bing_vector <- get_sentiment(text, method="bing")
+head(bing_vector)
+summary(bing_vector)
+#par la metheode affin
+afinn_vector <- get_sentiment(text, method="afinn")
+head(afinn_vector)
+summary(afinn_vector)
+```
+
+## 4.13.Classification des émotions
+
+
+```{r}
+d<-get_nrc_sentiment(text)
+head (d,10)
+```
+## 4.14.Classification des émotions (suite)
+
+```{r}
+td<-data.frame(t(d))
+td_new <- data.frame(rowSums(td[2:253]))
+names(td_new)[1] <- "count"
+td_new <- cbind("sentiment" = rownames(td_new), td_new)
+rownames(td_new) <- NULL
+td_new2<-td_new[1:8,]
+```
+
+## 4.15.Classification des émotions (suite)
+
+```{r}
+#Plot 1 - nombre de mots associés à chaque sentiment
+quickplot(sentiment, data=td_new2, weight=count,
+geom="bar",fill=sentiment,ylab="count")+ggtitle("Survey sentiments")
+```
+
+## 4.16.Classification des émotions (suite)
+
+```{r}
+#Plot 2 - nombre de mots associés à chaque sentiment
+barplot(
+sort(colSums(prop.table(d[, 1:8]))),
+horiz = TRUE,
+cex.names = 0.7,
+las = 1,
+main = "Emotions in Text", xlab="Percentage"
+)
+```
+
+
+    ****************************************************************
+                ---  PRATIQUE 04  ----
+    ****************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
