@@ -1,163 +1,183 @@
-# 📝 TextMining — Text Exploration & Sentiment Analysis
+# TextMining
 
-> An R-based academic project for **text mining** and **sentiment analysis**,  
-> applied to political speeches — developed as part of a Master’s program at **UQTR**  
-> *(Université du Québec à Trois-Rivières)*.
+An R-based academic project focused on text mining and sentiment analysis of political speeches. The repository demonstrates how to preprocess raw text, build a document-term matrix, extract frequent terms, visualize word clouds, and score sentiment using lexicon-based approaches.
 
------
+## Overview
 
-## 📌 Overview
+This project was developed as a text-mining exercise in R and applies NLP techniques to political speech data, with a focus on public communication, emotion detection, and thematic analysis. It combines:
 
-This project implements a complete **text mining pipeline** in R, from raw text ingestion to
-sentiment scoring and visualisation. It uses Bill Clinton’s political speeches as the primary
-corpus to demonstrate key NLP techniques, and exposes core functionality through a lightweight
-REST API.
+- document loading and preprocessing
+- stopword removal and stemming
+- word frequency analysis
+- term association discovery
+- sentiment and emotion classification
+- output-generation in HTML, Word, and PDF formats
 
------
+The repository includes a main analysis notebook, multiple generated outputs, and a small Plumber API example.
 
-## 🗂️ Repository Structure
+## Repository structure
 
-```
+```text
 TextMining/
-├── TextMining_api/          # REST API exposing text mining endpoints
-├── data/                    # Raw and processed datasets
-├── textMining.Rmd           # Main R Markdown analysis notebook
-├── textMining.nb.html       # Rendered HTML output
-├── textMining.docx          # Word document output
-├── TP4- Zouheyr AYAS.Rmd   # Academic assignment version (TP4)
-├── TP4- Zouheyr AYAS.pdf   # PDF report submission
-├── Bill Clinton.txt         # Text corpus — Bill Clinton speeches
-├── TextMining.Rproj         # RStudio project file
-└── README.md
+├── README.md
+├── TextMining.Rproj
+├── TP4-Zouheyr AYAS.Rproj
+├── textMining.Rmd                 # Main R notebook for text-mining analysis
+├── textMining.nb.html            # Rendered notebook output
+├── textMining.docx               # Word export
+├── TP4- Zouheyr AYAS.Rmd         # Academic assignment notebook
+├── TP4- Zouheyr AYAS.pdf         # Project submission PDF
+├── Bill Clinton.txt              # Main corpus (Bill Clinton speech text)
+├── data/
+│   ├── Bill Clinton.txt
+│   └── texte.txt
+├── TextMining_api/
+│   └── plumber.R                 # Plumber API example
+├── .gitignore
+└── .Rhistory (not tracked)
 ```
 
------
+## Tech stack
 
-## 🔧 Tech Stack
+- Language: R
+- IDE: RStudio
+- Text mining: `tm`, `SnowballC`
+- Visualization: `ggplot2`, `wordcloud`, `RColorBrewer`
+- Sentiment analysis: `syuzhet`
+- Reporting: R Markdown
+- API: Plumber
 
-|Layer        |Tools / Libraries                                |
-|-------------|-------------------------------------------------|
-|Language     |R                                                |
-|Text Mining  |`tm`, `tidytext`, `SnowballC`                    |
-|Sentiment    |`syuzhet`, `tidytext` (NRC, AFINN, Bing lexicons)|
-|Visualisation|`ggplot2`, `wordcloud`, `RColorBrewer`           |
-|API          |R Plumber *(see API section below)*              |
-|Reporting    |R Markdown → HTML / PDF / Word                   |
+## Data and analysis workflow
 
------
+The notebooks follow a standard text-mining flow:
 
-## 🚀 Installation & How to Run
+1. Load text from a file
+2. Build a corpus with `tm::Corpus()`
+3. Clean text by removing punctuation, numbers, stop words, and whitespace
+4. Normalize to lowercase and stem words
+5. Create a term-document matrix
+6. Explore term frequency and associations
+7. Generate word clouds and bar charts
+8. Compute sentiment with `syuzhet`
+9. Classify emotional categories with NRC lexicons
+
+This is especially suited for exploring the tone and thematic structure of political speeches.
+
+## Getting started
 
 ### Prerequisites
 
-- R ≥ 4.0
+- R 4.0 or newer
 - RStudio (recommended)
+- Internet access to install packages
 
-### 1. Clone the repository
+### Install dependencies
+
+Open R or RStudio and run:
+
+```r
+install.packages(c(
+  "tm",
+  "SnowballC",
+  "wordcloud",
+  "RColorBrewer",
+  "syuzhet",
+  "ggplot2",
+  "dplyr",
+  "stringr",
+  "plumber"
+))
+```
+
+### Open the project
 
 ```bash
 git clone https://github.com/zouheyr/TextMining.git
 cd TextMining
 ```
 
-### 2. Install R dependencies
+Then open `TextMining.Rproj` in RStudio.
 
-Open R or RStudio and run:
+## Running the analysis
 
-```r
-install.packages(c(
-  "tm", "tidytext", "SnowballC", "syuzhet",
-  "ggplot2", "wordcloud", "RColorBrewer",
-  "dplyr", "stringr", "plumber"
-))
-```
+The main notebook is:
 
-### 3. Run the analysis notebook
+- `textMining.Rmd`
 
-Open `TextMining.Rproj` in RStudio, then open and **Knit** `textMining.Rmd`.
+To render it from R:
 
 ```r
 rmarkdown::render("textMining.Rmd")
 ```
 
------
+The notebook uses a file picker (`file.choose()`) to select the text source, so it is best run interactively in RStudio.
 
-## 🌐 API Usage
+## API
 
-The `TextMining_api/` folder contains a **Plumber REST API** that exposes text mining
-functions programmatically.
+The repository contains a small Plumber API in `TextMining_api/plumber.R`.
 
-### Start the API
+### Run the API
 
 ```r
 library(plumber)
-pr <- plumb("TextMining_api/api.R")
+pr <- plumb("TextMining_api/plumber.R")
 pr$run(port = 8000)
 ```
 
-### Endpoints
+### Available routes in the current implementation
 
-|Method|Endpoint    |Description                              |Parameters     |
-|------|------------|-----------------------------------------|---------------|
-|`POST`|`/analyze`  |Full text mining analysis on input text  |`text` (string)|
-|`POST`|`/sentiment`|Returns sentiment scores (NRC/AFINN/Bing)|`text` (string)|
-|`GET` |`/wordcloud`|Generates a word frequency word cloud    |`text` (string)|
-|`GET` |`/health`   |API health check                         |—              |
-
-
-> ⚠️ *Endpoints are indicative — refer to `TextMining_api/` source files for the exact routes.*
-
-### Example Request
-
-```bash
-curl -X POST http://localhost:8000/sentiment \
-  -H "Content-Type: application/json" \
-  -d '{"text": "We must build a future of peace, hope, and shared prosperity."}'
+```text
+GET  /echo    Returns the input message
+GET  /plot    Returns a histogram image
+POST /sum     Adds two numeric values
 ```
 
-```json
-{
-  "positive": 3,
-  "negative": 0,
-  "trust": 2,
-  "anticipation": 1,
-  "sentiment_score": 2.4
-}
-```
+Note: The README originally described additional analytics endpoints such as `/analyze`, `/sentiment`, and `/wordcloud`; those routes are not currently implemented in the checked-in `plumber.R` file. The repository is currently better understood as an academic analysis project and a simple API example than as a production-ready text-analysis service.
 
------
+## Example of the project goals
 
-## 📊 Key Analyses
+The analysis focuses on:
 
-- **Pre-processing** — tokenisation, lowercasing, stopword removal, stemming
-- **Term Frequency & TF-IDF** — identify most significant terms in the corpus
-- **Word Cloud** — visual representation of term frequency
-- **Sentiment Analysis** — scoring with three lexicons:
-  - `NRC` — emotion categories (joy, anger, fear, trust…)
-  - `AFINN` — numeric sentiment score (−5 to +5)
-  - `Bing` — binary positive / negative classification
-- **Sentiment Over Time** — track emotional arc across a speech
+- identifying the most frequent terms in speeches
+- visualizing dominant vocabulary with word clouds
+- scoring positive/negative tone and emotional categories
+- comparing the language patterns of major political discourse
 
------
+The included corpus and notebooks demonstrate text mining from a political communication perspective, which is useful for coursework, exploratory analysis, and practice with NLP workflows in R.
 
-## 🎓 Academic Context
+## Outputs included
 
-|Field     |Details                                         |
-|----------|------------------------------------------------|
-|University|Université du Québec à Trois-Rivières **(UQTR)**|
-|Level     |Master’s program                                |
-|Assignment|TP4 — Text Mining & Sentiment Analysis          |
-|Author    |Zouheyr AYAS                                    |
+This repository already contains several rendered outputs:
 
------
+- `textMining.nb.html`
+- `textMining.docx`
+- `TP4- Zouheyr AYAS.pdf`
 
-## 👤 Author
+These outputs represent snapshots of the project analysis and can be used for reporting or academic submission.
 
-**Zouheyr AYAS**  
-[![GitHub](https://img.shields.io/badge/GitHub-zouheyr-181717?logo=github)](https://github.com/zouheyr)
+## Notes
 
------
+This project is primarily an academic and educational repository rather than a packaged library or full application. It is best used as a reference for:
 
-## 📄 License
+- R-based text processing
+- sentiment lexicon analysis
+- notebook-driven exploratory data analysis
+- political text mining examples
 
-This project is for academic purposes. All rights reserved © Zouheyr AYAS — UQTR.
+## License and author
+
+This project is part of an academic assignment and is associated with Zouheyr AYAS at UQTR (Université du Québec à Trois-Rivières).
+
+## Future improvements
+
+Possible next steps for this project include:
+
+- standardizing the project notebook structure
+- converting repeated analysis code into reusable functions
+- creating a proper `DESCRIPTION` or package setup
+- implementing real sentiment and analysis endpoints in a robust Plumber API
+- adding a cleaner `README` and reproducible setup script
+
+---
+
+If you want, I can also turn this into a more polished version in French, since the repository description and academic context appear to be in French.
